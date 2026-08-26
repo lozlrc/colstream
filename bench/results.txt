@@ -1,0 +1,22 @@
+colstream bench
+Apple M2 Pro, macOS, clang 17, -O2
+table 5000 rows x 12 cols, zipf(1.2) row updates, 200 updates/delta, 5000 deltas/combo, warmup 500
+
+| layout     | codec   | payload B/msg | ratio | pub ns/msg | sub ns/msg |
+|------------|---------|--------------:|------:|-----------:|-----------:|
+| CELLWISE   | NONE    |        9391.4 | 1.000 |      11732 |       1573 |
+| CELLWISE   | LZ4     |        5947.0 | 0.633 |      30786 |      13710 |
+| CELLWISE   | DEFLATE |        3975.0 | 0.423 |     299094 |      18958 |
+| COL_RAW    | NONE    |        6200.9 | 0.660 |       9762 |       2882 |
+| COL_RAW    | LZ4     |        3525.5 | 0.375 |      21085 |       9144 |
+| COL_RAW    | DEFLATE |        2624.1 | 0.279 |     164580 |      15508 |
+| COL_PACKED | NONE    |        4390.3 | 0.467 |      11557 |       4856 |
+| COL_PACKED | LZ4     |        3047.9 | 0.325 |      21750 |       8271 |
+| COL_PACKED | DEFLATE |        2609.9 | 0.278 |      99773 |      16941 |
+
+snapshot payload bytes (5000 rows x 12 cols):
+| layout     |    NONE |     LZ4 | DEFLATE |
+|------------|--------:|--------:|--------:|
+| CELLWISE   |  840000 |  520617 |  297446 |
+| COL_RAW    |  487538 |  251522 |  164777 |
+| COL_PACKED |  296618 |  209527 |  158240 |
