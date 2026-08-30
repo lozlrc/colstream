@@ -1,5 +1,7 @@
 # colstream
 
+[![ci](https://github.com/lozlrc/colstream/actions/workflows/ci.yml/badge.svg)](https://github.com/lozlrc/colstream/actions/workflows/ci.yml)
+
 Columnar delta feed: a publisher maintains a typed table, streams snapshots and
 deltas as compact frames, and a subscriber rebuilds identical state from an
 arbitrarily fragmented byte stream. Three payload layouts and three codecs,
