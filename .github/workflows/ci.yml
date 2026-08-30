@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: test (${{ matrix.cxx }}, x86-64 linux)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cxx: [g++, clang++]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain and reference liblz4
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq g++ clang make liblz4-dev zlib1g-dev
+
+      # Reference liblz4 lives at /usr/include here, not the Homebrew path the
+      # Makefile defaults to, so the cross-verification test builds and runs.
+      - name: Build and test
+        run: make test CXX=${{ matrix.cxx }} LZ4_HDR=/usr/include/lz4.h
+
+      # The bench is a portfolio artifact measured on the author's machine and
+      # committed at bench/results.txt. Shared CI runners are too noisy to
+      # publish numbers from, so this only proves it runs end to end.
+      - name: Smoke the benchmark
+        run: |
+          make bench CXX=${{ matrix.cxx }} LZ4_HDR=/usr/include/lz4.h
+          git diff --stat -- bench/results.txt || true
+          git checkout -- bench/results.txt
